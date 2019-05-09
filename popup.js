@@ -1,6 +1,15 @@
-let changeColor = document.getElementById('changeColor');
+const axios = require('axios');
 
-chrome.storage.sync.get('color', function(data) {
-  changeColor.style.backgroundColor = data.color;
-  changeColor.setAttribute('value', data.color);
-});
+axios
+  .get('http://localhost:8080/member')
+  .then(function(response) {
+    // handle success
+    console.log(response);
+  })
+  .catch(function(error) {
+    // handle error
+    console.log(error);
+  })
+  .finally(function() {
+    // always executed
+  });

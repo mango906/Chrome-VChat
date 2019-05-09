@@ -2,7 +2,7 @@
   "name": "Chrome Chat",
   "version": "1.0",
   "description": "Voice-Chat",
-  "permissions": ["activeTab", "declarativeContent", "storage"],
+  "permissions": ["activeTab", "storage", "http://localhost:8080/**"],
   "background": {
     "scripts": ["background.js"],
     "persistent": false

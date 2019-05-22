@@ -186,36 +186,45 @@ process.umask = function() { return 0; };
 
 },{}],2:[function(require,module,exports){
 const axios = require('axios');
+let userId;
 
 window.onload = () => {
-  let id = document.getElementById('id');
-  let password = document.getElementById('password');
-  let loginBtn = document.getElementById('loginBtn');
-
-  loginBtn.addEventListener('click', e => {
+  chrome.storage.sync.get('userId', data => {
+    userId = data.userId;
     let req = {
-      id: id.value,
-      password: password.value
+      uesrId: data.userId
     };
-
     axios
-      .post('http://localhost:8080/login', req)
-      .then(function(res) {
-        // handle success
-        if (res.status === 200) {
-          alert('로그인 성공!');
-          chrome.storage.sync.set({ userId: req.id }, function() {
-            console.log(`ID : ${req.id}`);
-          });
-          location.href = 'main.html';
-        } else if (res.status === 400) {
-          alert('로그인 실패!');
-        }
+      .get(`http://localhost:8080/friends/${data.userId}`)
+      .then(res => {
+        console.log(res);
+        console.log(req);
       })
-      .catch(function(error) {
-        console.log(error);
+      .catch(err => {
+        console.error(err);
       });
+    // axios.get('http://localhost:8080/friends', data.userId), () => {
+    //   console.log(res);
+    // });
   });
+
+  document.getElementById('addBtn').addEventListener('click', () => {
+    let id = prompt('아이디를 입력해주세요.');
+    let req = {
+      userId: userId,
+      friend: id
+    };
+    axios.post('http://localhost:8080/friends', req).then(res => {
+      console.log(res);
+    });
+    // axios.post('http://localhost:8080/friends', req, res => {
+    //   console.log(res);
+    // });
+  });
+
+  add = () => {
+    // let id = prompt('아이디를 입력해주세요.');
+  };
 };
 
 },{"axios":3}],3:[function(require,module,exports){

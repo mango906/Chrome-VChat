@@ -17,6 +17,10 @@ window.onload = () => {
         // handle success
         if (res.status === 200) {
           alert('로그인 성공!');
+          chrome.storage.sync.set({ userId: req.id }, function() {
+            console.log(`ID : ${req.id}`);
+          });
+          location.href = 'main.html';
         } else if (res.status === 400) {
           alert('로그인 실패!');
         }

@@ -186,45 +186,54 @@ process.umask = function() { return 0; };
 
 },{}],2:[function(require,module,exports){
 const axios = require('axios');
-let userId;
+let id;
 
 window.onload = () => {
-  chrome.storage.sync.get('userId', data => {
-    userId = data.userId;
-    let req = {
-      uesrId: data.userId
-    };
-    axios
-      .get(`http://localhost:8080/friends/${data.userId}`)
-      .then(res => {
-        console.log(res);
-        console.log(req);
-      })
-      .catch(err => {
-        console.error(err);
-      });
-    // axios.get('http://localhost:8080/friends', data.userId), () => {
-    //   console.log(res);
-    // });
+  chrome.storage.sync.get('id', data => {
+    id = data.id;
+    getFriends();
   });
 
   document.getElementById('addBtn').addEventListener('click', () => {
-    let id = prompt('아이디를 입력해주세요.');
+    let friendId = prompt('아이디를 입력해주세요.');
     let req = {
-      userId: userId,
-      friend: id
+      userId: id,
+      friendId: friendId
     };
     axios.post('http://localhost:8080/friends', req).then(res => {
-      console.log(res);
+      if (res.status === 200) {
+        alert('친구 추가 완료!');
+        getFriends();
+      }
     });
-    // axios.post('http://localhost:8080/friends', req, res => {
-    //   console.log(res);
-    // });
   });
+};
 
-  add = () => {
-    // let id = prompt('아이디를 입력해주세요.');
-  };
+getFriends = () => {
+  axios
+    .get(`http://localhost:8080/friends/${id}`)
+    .then(res => {
+      let data = res.data;
+      let friendNav = document.getElementById('friend-nav');
+      while (friendNav.firstChild) {
+        friendNav.removeChild(friendNav.firstChild);
+      }
+      data.forEach(f => {
+        let li = document.createElement('li');
+        li.classList.add('friend-item');
+        let childLi = document.createElement('li');
+        let img = document.createElement('img');
+        img.src = './../icons/phone-call.png';
+        childLi.innerHTML = f.user_name;
+        li.appendChild(childLi);
+        li.appendChild(img);
+        friendNav.appendChild(li);
+      });
+      console.log(res);
+    })
+    .catch(err => {
+      console.error(err);
+    });
 };
 
 },{"axios":3}],3:[function(require,module,exports){

@@ -1,3 +1,7 @@
+* {
+  list-style-type: none;
+}
+
 body {
   min-width: 500px;
   font-family: 'Nanum Gothic', sans-serif;
@@ -6,4 +10,17 @@ body {
 header {
   display: flex;
   justify-content: flex-end;
+}
+
+.friend-item {
+  display: flex;
+  padding: 10px 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.friend-item > img {
+  cursor: pointer;
+  padding: 10px;
+  background-color: #4286f4;
 }

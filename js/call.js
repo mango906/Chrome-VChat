@@ -16,7 +16,7 @@ var ICE_SERVERS = [{ url: 'stun:stun.l.google.com:19302' }];
 window.onload = () => {
   console.log('Connecting to signaling server');
   // signaling_socket = io(SIGNALING_SERVER);
-  signaling_socket = io('http://localhost:8080');
+  signaling_socket = io('ws://localhost:8080', { transports: ['websocket'] });
 
   chrome.storage.sync.get('name', data => {
     signaling_socket.emit('conn', data.name);
@@ -25,7 +25,7 @@ window.onload = () => {
   let url = new URL(location.href);
   var params = url.searchParams.get('room_idx');
 
-  signaling_socket.emit('joinRoom', params);
+  signaling_socket.emit('participate', params);
 
   signaling_socket.on('connect', function() {
     console.log('Connected to signaling server');
@@ -94,6 +94,7 @@ window.onload = () => {
       console.log('onAddStream', event);
       var remote_media = USE_VIDEO ? $('<video>') : $('<audio>');
       remote_media.attr('autoplay', 'autoplay');
+      remote_media.attr('hidden', 'hidden');
       if (MUTE_AUDIO_BY_DEFAULT) {
         remote_media.attr('muted', 'true');
       }
@@ -244,7 +245,7 @@ function setup_local_media(callback, errorback) {
 
   attachMediaStream = function(element, stream) {
     console.log('DEPRECATED, attachMediaStream will soon be removed.');
-    // element.srcObject = stream;
+    element.srcObject = stream;
   };
 
   navigator.getUserMedia(
@@ -255,10 +256,11 @@ function setup_local_media(callback, errorback) {
       local_media_stream = stream;
       var local_media = USE_VIDEO ? $('<video>') : $('<audio>');
       local_media.attr('autoplay', 'autoplay');
+      local_media.attr('hidden', 'hidden');
       local_media.attr('muted', 'true'); /* always mute ourselves by default */
       local_media.attr('controls', '');
       $('body').append(local_media);
-      attachMediaStream(local_media[0], stream);
+      // attachMediaStream(local_media[0], stream);
 
       if (callback) callback();
     },

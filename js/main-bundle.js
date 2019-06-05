@@ -186,78 +186,53 @@ process.umask = function() { return 0; };
 
 },{}],2:[function(require,module,exports){
 const axios = require('axios');
-const socket = io('http://localhost:8080');
+const socket = io('ws://localhost:8080', { transports: ['websocket'] });
 let id;
 
 window.onload = () => {
-  socket.emit('getRooms');
-
-  socket.on('rooms', rooms => {
-    let friendNav = document.getElementById('friend-nav');
-    while (friendNav.firstChild) {
-      friendNav.removeChild(friendNav.firstChild);
-    }
-    rooms.forEach(f => {
-      let li = document.createElement('li');
-      li.classList.add('friend-item');
-      let childLi = document.createElement('li');
-      let img = document.createElement('img');
-      img.src = './../icons/phone-call.png';
-      img.onclick = call();
-      childLi.innerHTML = f.room_name;
-      li.appendChild(childLi);
-      li.appendChild(img);
-      friendNav.appendChild(li);
-    });
-    console.log(rooms);
-  });
-
-  socket.on('createRoom', url => {
-    location.href = url;
-  });
-
-  // chrome.storage.sync.get('id', data => {
-  //   id = data.id;
-  //   getFriends();
-  // });
-
   document.getElementById('addBtn').addEventListener('click', () => {
     let roomName = prompt('방 제목을 입력해주세요');
     socket.emit('createRoom', roomName);
   });
 };
 
-getFriends = () => {
-  axios
-    .get(`http://localhost:8080/friends/${id}`)
-    .then(res => {
-      let data = res.data;
-      let friendNav = document.getElementById('friend-nav');
-      while (friendNav.firstChild) {
-        friendNav.removeChild(friendNav.firstChild);
-      }
-      data.forEach(f => {
-        let li = document.createElement('li');
-        li.classList.add('friend-item');
-        let childLi = document.createElement('li');
-        let img = document.createElement('img');
-        img.src = './../icons/phone-call.png';
-        img.onclick = call();
-        childLi.innerHTML = f.user_name;
-        li.appendChild(childLi);
-        li.appendChild(img);
-        friendNav.appendChild(li);
-      });
-      console.log(res);
-    })
-    .catch(err => {
-      console.error(err);
-    });
+socket.on('redirectRoom', url => {
+  location.href = url;
+});
+
+socket.on('rooms', rooms => {
+  console.log('rooms', rooms);
+  let friendNav = document.getElementById('friend-nav');
+  while (friendNav.firstChild) {
+    friendNav.removeChild(friendNav.firstChild);
+  }
+  rooms.forEach(f => {
+    let li = document.createElement('li');
+    li.classList.add('room-item');
+    let childLi = document.createElement('li');
+    childLi.innerHTML = f.room_name;
+    childLi.dataset.idx = f.room_idx;
+    childLi.addEventListener('click', joinRoom);
+    li.appendChild(childLi);
+    friendNav.appendChild(li);
+  });
+  console.log(rooms);
+});
+
+joinRoom = e => {
+  socket.emit('joinRoom', e.target.dataset.idx);
 };
 
-call = () => {
-  // location.href = './../call.html';
-};
+// document.getElementById('friend-nav').onclick = e => {
+//   var tgt = e.target,
+//     i = 0,
+//     items;
+//   if (tgt === this) return;
+//   items = children(this);
+//   while (tgt.parentNode !== this) tgt = tgt.parentNode;
+//   while (items[i] !== tgt) i++;
+//   alert(i);
+// };
 
 },{"axios":3}],3:[function(require,module,exports){
 module.exports = require('./lib/axios');

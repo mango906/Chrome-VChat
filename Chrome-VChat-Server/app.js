@@ -40,10 +40,12 @@ connection.query('SELECT * from User', function(err, rows, fields) {
 
 main.use(bodyParser.urlencoded());
 main.use(bodyParser.json());
+main.use(express.static('./../Chrome-VChat-Client'));
 
-main.get('/', function(req, res) {
-  res.sendFile(__dirname + '/client.html');
-});
+// main.get('/', function(req, res) {
+//   res.send(__dirname + '/../Chrome-VChat-Client/popup.html');
+//   // res.sendFile(__dirname + '/../Chrome-VChat-Client/popup.html');
+// });
 
 main.post('/login', (req, res) => {
   let data = req.body;
@@ -160,13 +162,11 @@ var sockets = {};
  * information. After all of that happens, they'll finally be able to complete
  * the peer connection and will be streaming audio/video between eachother.
  */
-io.sockets.on('connection', function(socket) {
+io.sockets.on('connection', socket => {
   socket.channels = {};
   sockets[socket.id] = socket;
 
   socketRooms = io.sockets.adapter.rooms;
-
-  // console.log('[' + socket.id + '] connection accepted');
 
   socket.emit('rooms', rooms);
 
@@ -176,7 +176,6 @@ io.sockets.on('connection', function(socket) {
       id: socket.id
     };
     clients.push(obj);
-    console.log(obj);
   });
 
   socket.on('createRoom', roomName => {
@@ -186,7 +185,7 @@ io.sockets.on('connection', function(socket) {
       room_name: roomName
     };
     // rooms.push(data);
-    socket.emit('redirectRoom', `call.html?room_idx=${room_idx}&room_name=${roomName}`);
+    socket.emit('redirectRoom', `call.html?room_idx=${room_idx}`);
     room_idx++;
     Object.keys(socketRooms).map(key => {
       console.log('sockets', socketRooms[key].sockets);
@@ -202,44 +201,54 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('participate', data => {
+    console.log('test', data);
     socket.room_idx = data.room_idx;
+    console.log('room_idx', socket.room_idx);
     socket.join(data.room_idx);
 
-    console.log('room_name', data.room_name);
-
-    const idx = Object.keys(socketRooms).filter(key => data.room_idx === key);
+    // First Room
 
     if (rooms.length === 0) {
-      let roomMaster = Object.keys(Object.values(Object.values(socketRooms)[0])[0])[0];
       let newRoom = {
         id: socket.room_idx,
         name: data.room_name,
-        detail: Object.values(socketRooms[idx])[0]
+        detail: Object.values(socketRooms[0])[0]
       };
       rooms.push(newRoom);
-      console.log('rooms', rooms, 'rooms');
-
       io.emit('rooms', rooms);
 
+      console.log('key', Object.keys(newRoom.detail));
+
+      io.to(socket.room_idx).emit('roomInfo', newRoom.detail);
       return;
     }
 
-    rooms.forEach((room, i) => {
-      let roomMaster = Object.keys(room.detail)[0];
-      if (socket.id !== roomMaster) {
-        let newRoom = {
-          id: socket.room_idx,
-          detail: Object.values(socketRooms[idx])[0]
-        };
-        rooms.push(newRoom);
-      }
-    });
+    // Join Room
 
-    io.emit('rooms', rooms);
+    const idx = rooms.findIndex(findIdx);
 
-    console.log('rooms', rooms);
+    if (idx !== -1) {
+      io.to(socket.room_idx).emit('roomInfo', rooms[idx].detail);
+      return;
+    }
+    // const idx = rooms.filter(room => room.id === data.room_idx);
 
-    console.log('socketRooms', socketRooms);
+    // Create Room
+
+    // rooms.forEach((room, i) => {
+    //   let roomMaster = Object.keys(room.detail)[0];
+    //   if (socket.id !== roomMaster) {
+    //     let newRoom = {
+    //       id: socket.room_idx,
+    //       detail: Object.values(socketRooms[idx])[0]
+    //     };
+    //     rooms.push(newRoom);
+    //     io.emit('rooms', rooms);
+    //     return;
+    //   }
+    // });
+
+    // Join Room
   });
 
   socket.on('disconnect', function() {
@@ -291,6 +300,11 @@ io.sockets.on('connection', function(socket) {
     channels[channel][socket.id] = socket;
     socket.channels[channel] = channel;
   });
+
+  findIdx = e => {
+    console.log(e);
+    return e.id === socket.room_idx;
+  };
 
   function part(channel) {
     console.log('[' + socket.id + '] part ');

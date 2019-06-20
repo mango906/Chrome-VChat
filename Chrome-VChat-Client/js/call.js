@@ -18,15 +18,26 @@ window.onload = () => {
   // signaling_socket = io(SIGNALING_SERVER);
   signaling_socket = io('ws://localhost:8080', { transports: ['websocket'] });
 
-  chrome.storage.sync.get('name', data => {
-    signaling_socket.emit('conn', data.name);
+  chrome.storage.sync.get('name', async data => {
+    await signaling_socket.emit('conn', data.name);
   });
 
   let url = new URL(location.href);
   var room_idx = url.searchParams.get('room_idx');
-  var room_name = url.searchParams.get('room_name');
+  var room_name;
+  chrome.storage.sync.get('room_name', name => {
+    room_name = name;
+  });
 
   signaling_socket.emit('participate', { room_idx: room_idx, room_name: room_name });
+
+  signaling_socket.on('roomInfo', async data => {
+    Object.keys(data).forEach(data => {
+      let li = document.createElement('div');
+      li.innerHTML = data;
+      document.getElementById('members').appendChild(li);
+    });
+  });
 
   signaling_socket.on('connect', function() {
     console.log('Connected to signaling server');

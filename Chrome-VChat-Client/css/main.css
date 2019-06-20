@@ -12,6 +12,12 @@ header {
   justify-content: flex-end;
 }
 
+.room-item {
+  padding: 20px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
 .friend-item {
   display: flex;
   padding: 10px 20px;

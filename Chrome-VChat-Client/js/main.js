@@ -23,8 +23,8 @@ socket.on('rooms', rooms => {
     let li = document.createElement('li');
     li.classList.add('room-item');
     let childLi = document.createElement('li');
-    childLi.innerHTML = f.room_name;
-    childLi.dataset.idx = f.room_idx;
+    childLi.innerHTML = f.name;
+    childLi.dataset.idx = f.idx;
     childLi.addEventListener('click', joinRoom);
     li.appendChild(childLi);
     friendNav.appendChild(li);

@@ -23,9 +23,10 @@ window.onload = () => {
   });
 
   let url = new URL(location.href);
-  var params = url.searchParams.get('room_idx');
+  var room_idx = url.searchParams.get('room_idx');
+  var room_name = url.searchParams.get('room_name');
 
-  signaling_socket.emit('participate', params);
+  signaling_socket.emit('participate', { room_idx: room_idx, room_name: room_name });
 
   signaling_socket.on('connect', function() {
     console.log('Connected to signaling server');

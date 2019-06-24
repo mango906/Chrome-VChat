@@ -5,7 +5,7 @@
   "permissions": [
     "activeTab",
     "storage",
-    "http://localhost:8080/**",
+    "http://10.80.163.214:8080/**",
     "http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js",
     "https://cdn.socket.io/socket.io-1.4.5.js"
   ],

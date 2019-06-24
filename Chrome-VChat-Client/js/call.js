@@ -3,39 +3,40 @@ var local_media_stream = null; /* our own microphone / webcam */
 var peers = {}; /* keep track of our peer connections, indexed by peer_id (aka socket.io id) */
 var peer_media_elements = {}; /* keep track of our <video>/<audio> tags, indexed by peer_id */
 /** CONFIG **/
-var SIGNALING_SERVER = 'http://localhost';
+var SIGNALING_SERVER = 'http://10.80.163.214:8080';
 var USE_AUDIO = true;
 var USE_VIDEO = false;
 var DEFAULT_CHANNEL = 'some-global-channel-name';
 var MUTE_AUDIO_BY_DEFAULT = false;
-
-/** You should probably use a different stun server doing commercial stuff **/
-/** Also see: https://gist.github.com/zziuni/3741933 **/
+var keyPress = false;
+let ipconfig = '10.80.163.214:8080';
 var ICE_SERVERS = [{ url: 'stun:stun.l.google.com:19302' }];
 
 window.onload = () => {
   console.log('Connecting to signaling server');
-  // signaling_socket = io(SIGNALING_SERVER);
-  signaling_socket = io('ws://localhost:8080', { transports: ['websocket'] });
+  signaling_socket = io(`ws://${ipconfig}`, { transports: ['websocket'] });
 
   chrome.storage.sync.get('name', async data => {
+    console.log(data);
     await signaling_socket.emit('conn', data.name);
   });
 
   let url = new URL(location.href);
   var room_idx = url.searchParams.get('room_idx');
-  var room_name;
+
   chrome.storage.sync.get('room_name', name => {
-    room_name = name;
+    signaling_socket.emit('participate', { room_idx: room_idx, room_name: 'room_name' });
   });
 
-  signaling_socket.emit('participate', { room_idx: room_idx, room_name: room_name });
-
   signaling_socket.on('roomInfo', async data => {
-    Object.keys(data).forEach(data => {
+    let members = document.getElementById('members');
+    let count = document.createElement('div');
+    count.innerHTML = `참여하고 있는사람 수 : ${data.length}`;
+    members.appendChild(count);
+    data.forEach(data => {
       let li = document.createElement('div');
-      li.innerHTML = data;
-      document.getElementById('members').appendChild(li);
+      li.innerHTML = data.name;
+      members.appendChild(li);
     });
   });
 
@@ -106,7 +107,7 @@ window.onload = () => {
       console.log('onAddStream', event);
       var remote_media = USE_VIDEO ? $('<video>') : $('<audio>');
       remote_media.attr('autoplay', 'autoplay');
-      remote_media.attr('hidden', 'hidden');
+      // remote_media.attr('hidden', 'hidden');
       if (MUTE_AUDIO_BY_DEFAULT) {
         remote_media.attr('muted', 'true');
       }
@@ -268,7 +269,7 @@ function setup_local_media(callback, errorback) {
       local_media_stream = stream;
       var local_media = USE_VIDEO ? $('<video>') : $('<audio>');
       local_media.attr('autoplay', 'autoplay');
-      local_media.attr('hidden', 'hidden');
+      // local_media.attr('hidden', 'hidden');
       local_media.attr('muted', 'true'); /* always mute ourselves by default */
       local_media.attr('controls', '');
       $('body').append(local_media);
@@ -284,3 +285,15 @@ function setup_local_media(callback, errorback) {
     }
   );
 }
+
+window.onkeydown = () => {
+  if (keyPress === false) {
+    keyPress = true;
+  }
+};
+
+window.onkeyup = () => {
+  if (keyPress === true) {
+    keyPress = false;
+  }
+};

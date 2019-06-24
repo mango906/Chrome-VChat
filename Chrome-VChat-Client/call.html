@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
     <script src="js/jquery.js"></script>
     <!-- This adapter.js file de-prefixes the webkit* and moz* prefixed RTC
              methods. When RTC becomes a more solid standard, this adapter should no
@@ -9,7 +13,6 @@
     <style>
       html,
       body {
-        background-color: #333;
       }
       video {
         width: 320px;
@@ -23,9 +26,5 @@
   </head>
   <body>
     <div id="members"></div>
-    <!-- 
-        the <video> and <audio> tags are all added and removed dynamically
-        in 'onAddStream', 'setup_local_media', and 'removePeer'/'disconnect'
-        -->
   </body>
 </html>

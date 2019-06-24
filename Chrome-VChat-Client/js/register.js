@@ -15,7 +15,7 @@ window.onload = () => {
       desc: desc.value
     };
     axios
-      .post('http://localhost:8080/member', req)
+      .post('http://10.80.163.214:8080/member', req)
       .then(function(res) {
         if (res.status == 200) {
           alert('회원가입 성공!');

@@ -6,6 +6,7 @@ let id;
 window.onload = () => {
   document.getElementById('addBtn').addEventListener('click', () => {
     let roomName = prompt('방 제목을 입력해주세요');
+    if (roomName === null || roomName.trim() === '') return;
     chrome.storage.sync.set({ room_name: roomName }, roomName => {
       console.log(roomName);
     });

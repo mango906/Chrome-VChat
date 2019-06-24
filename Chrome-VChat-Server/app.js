@@ -230,7 +230,8 @@ io.sockets.on('connection', async socket => {
     const idx = rooms.findIndex(findIdx);
 
     if (idx !== -1) {
-      io.to(socket.room_idx).emit('roomInfo', rooms[idx].detail);
+      console.log('roomInfo', rooms[idx].detail);
+      io.to(socket.room_idx).emit('roomInfo', getInfos(Object.keys(rooms[idx].detail)));
       return;
     }
 
@@ -239,7 +240,7 @@ io.sockets.on('connection', async socket => {
     let newRoom = {
       id: socket.room_idx,
       name: data.room_name,
-      detail: Object.values(socketRooms[idx])[0]
+      detail: getInfos(Object.values(socketRooms[idx])[0])
     };
     rooms.push(newRoom);
     io.emit('rooms', rooms);
@@ -270,6 +271,8 @@ io.sockets.on('connection', async socket => {
     }
 
     console.log(socket.room_idx);
+
+    socketRooms = io.sockets.adapter.rooms;
   });
 
   socket.on('join', function(config) {

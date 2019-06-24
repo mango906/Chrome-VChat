@@ -24,12 +24,17 @@ window.onload = () => {
   let url = new URL(location.href);
   var room_idx = url.searchParams.get('room_idx');
 
-  chrome.storage.sync.get('room_name', name => {
-    signaling_socket.emit('participate', { room_idx: room_idx, room_name: 'room_name' });
+  chrome.storage.sync.get('room_name', data => {
+    signaling_socket.emit('participate', { room_idx: room_idx, room_name: data.room_name });
   });
 
   signaling_socket.on('roomInfo', async data => {
     let members = document.getElementById('members');
+
+    while (members.firstChild) {
+      members.removeChild(members.firstChild);
+    }
+
     let count = document.createElement('div');
     count.innerHTML = `참여하고 있는사람 수 : ${data.length}`;
     members.appendChild(count);

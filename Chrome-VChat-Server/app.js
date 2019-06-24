@@ -207,13 +207,16 @@ io.sockets.on('connection', async socket => {
     socket.room_idx = data.room_idx;
     socket.join(data.room_idx);
 
+    console.log('idx', data.room_idx);
+    console.log('socketRooms', socketRooms);
+
     // First Room
 
     if (rooms.length === 0) {
       let newRoom = {
         id: socket.room_idx,
         name: data.room_name,
-        detail: Object.values(socketRooms[0])[0]
+        detail: Object.values(socketRooms[data.room_idx])[0]
       };
       console.log('newRoom', newRoom);
       rooms.push(newRoom);
